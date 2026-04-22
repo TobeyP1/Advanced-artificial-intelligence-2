@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_DB=food_network"
+      - "POSTGRES_USER=admin"
+      - "POSTGRES_PASSWORD=password123"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - "DATABASE_URL=postgres://admin:password123@db:5432/food_network"
+    depends_on:
+      - db
