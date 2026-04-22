@@ -1,0 +1,68 @@
+<main>
+  <nav aria-label="Breadcrumb">
+    <p><a href="{% url 'marketplace:home' %}">Back to categories</a></p>
+    <p><a href="{% url 'marketplace:cart_detail' %}">View cart ({{ cart_total_items }})</a></p>
+  </nav>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <header>
+    <h1>{{ product.name }}</h1>
+    <p><strong>Category:</strong> {{ product.category.name }}</p>
+    <p><strong>Producer:</strong> {{ product.producer.producer_name }}</p>
+    <p><strong>Price:</strong> £{{ product.price }}</p>
+    <p><strong>Availability:</strong> {{ product.get_availability_status_display }}</p>
+    <p><strong>In stock:</strong> {{ product.stock_quantity }}</p>
+    <p><strong>Organic:</strong> {% if product.organic_certified %}Certified{% else %}Not Certified{% endif %}</p>
+  </header>
+
+  <section aria-labelledby="allergen-heading">
+    <h2 id="allergen-heading">Allergen Information</h2>
+    {% if product.allergen_info %}
+      <p><strong>⚠️ Contains:</strong> {{ product.allergen_info }}</p>
+    {% else %}
+      <p><strong>No known common allergens.</strong></p>
+    {% endif %}
+  </section>
+
+  {% if product.description %}
+    <section aria-labelledby="desc-heading">
+      <h2 id="desc-heading">Description</h2>
+      <p>{{ product.description }}</p>
+    </section>
+  {% endif %}
+
+  <section aria-labelledby="add-cart-heading">
+    <h2 id="add-cart-heading">Add to Cart</h2>
+    <form method="post" action="{% url 'marketplace:add_to_cart' product.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'marketplace:product_detail' product.id %}" />
+      <label for="quantity">Quantity</label>
+      <input id="quantity" type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" />
+      <button type="submit">Add to cart</button>
+    </form>
+  </section>
+
+  <section aria-labelledby="xai-heading">
+    <h2 id="xai-heading">Why you may also like these</h2>
+    <p><strong>Active model:</strong> {{ active_ai_model_label }}</p>
+    <ul>
+      {% for item in recommendations %}
+        <li>
+          <a href="{% url 'marketplace:product_detail' item.product.id %}"><strong>{{ item.product.name }}</strong></a>
+          - {{ item.product.category.name }} - GBP {{ item.product.price }}
+          <br>
+          <em>Reason:</em> {{ item.explanation }}
+        </li>
+      {% empty %}
+        <li>No related recommendations available yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</main>

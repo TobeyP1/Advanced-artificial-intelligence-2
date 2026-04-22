@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3-journal
+media/
+staticfiles/
+postgres_data/

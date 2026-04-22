@@ -1,0 +1,62 @@
+<main>
+  <nav aria-label="Breadcrumb">
+    <p><a href="{% url 'marketplace:home' %}">Continue shopping</a></p>
+  </nav>
+
+  <header>
+    <h1>Your Cart</h1>
+    <p>Total items: {{ cart_total_items }}</p>
+  </header>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if cart %}
+    <table>
+      <caption>Products in your cart</caption>
+      <thead>
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Price</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Line total</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart %}
+          <tr>
+            <th scope="row">
+              <a href="{% url 'marketplace:product_detail' item.product.id %}">{{ item.product.name }}</a>
+            </th>
+            <td>£{{ item.price }}</td>
+            <td>
+              <form method="post" action="{% url 'marketplace:update_cart_item' item.product.id %}">
+                {% csrf_token %}
+                <label for="qty-{{ item.product.id }}">Qty</label>
+                <input id="qty-{{ item.product.id }}" type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock_quantity }}" />
+                <button type="submit">Update</button>
+              </form>
+            </td>
+            <td>£{{ item.total_price }}</td>
+            <td>
+              <form method="post" action="{% url 'marketplace:remove_from_cart' item.product.id %}">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p><strong>Grand total:</strong> £{{ cart.get_total_price }}</p>
+  {% else %}
+    <p>Your cart is empty.</p>
+  {% endif %}
+</main>

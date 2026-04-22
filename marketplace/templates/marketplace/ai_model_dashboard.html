@@ -1,0 +1,59 @@
+<main>
+  <p>
+    <a href="{% url 'marketplace:home' %}">Back to marketplace</a> |
+    <a href="{% url 'marketplace:export_activity_data' %}">Download interaction CSV</a>
+  </p>
+
+  <h1>AI model centre</h1>
+  <p><strong>Current active model:</strong> {{ active_ai_model_label }}</p>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <section aria-labelledby="upload-heading">
+    <h2 id="upload-heading">Upload a trained model</h2>
+    <p>Use this page to upload a model that was trained outside the web application.</p>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Upload model</button>
+    </form>
+  </section>
+
+  <section aria-labelledby="models-heading">
+    <h2 id="models-heading">Uploaded models</h2>
+    <table border="1" cellpadding="6">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Version</th>
+          <th>Status</th>
+          <th>Accuracy</th>
+          <th>Uploaded by</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for model in models %}
+          <tr>
+            <td>{{ model.name }}</td>
+            <td>{{ model.version }}</td>
+            <td>{{ model.get_status_display }}</td>
+            <td>{% if model.accuracy_score %}{{ model.accuracy_score }}%{% else %}N/A{% endif %}</td>
+            <td>{% if model.uploaded_by %}{{ model.uploaded_by.username }}{% else %}Unknown{% endif %}</td>
+            <td>{{ model.created_at }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">No AI models uploaded yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</main>

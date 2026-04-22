@@ -1,0 +1,105 @@
+<main>
+  <h1>Bristol Regional Food Marketplace</h1>
+
+  <p>
+    <a href="{% url 'marketplace:cart_detail' %}">View cart ({{ cart_total_items }})</a>
+    {% if user.is_staff %}| <a href="{% url 'marketplace:ai_model_dashboard' %}">AI model centre</a>{% endif %}
+    {% if user.is_superuser %}| <a href="{% url 'marketplace:admin_dashboard' %}">Platform overview</a>{% endif %}
+  </p>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <section aria-labelledby="search-heading">
+    <h2 id="search-heading">Search products</h2>
+    <form method="get" action="{% url 'marketplace:home' %}">
+      <label for="search-input">Keyword</label>
+      <input id="search-input" type="text" name="q" value="{{ search_query }}" placeholder="Try apples, honey, or producer name" />
+      <label for="organic-filter">Organic</label>
+      <select id="organic-filter" name="organic">
+        <option value="">Any</option>
+        <option value="certified" {% if organic_filter == "certified" %}selected{% endif %}>Certified Organic</option>
+        <option value="not_certified" {% if organic_filter == "not_certified" %}selected{% endif %}>Not Certified</option>
+      </select>
+      <label for="allergen-filter">Allergen contains</label>
+      <input id="allergen-filter" type="text" name="allergen" value="{{ allergen_filter }}" placeholder="e.g. milk, nuts, gluten" />
+      <button type="submit">Search</button>
+    </form>
+
+    {% if search_performed %}
+      <h3>Results for "{{ search_query|default:'selected filters' }}"</h3>
+      <ul>
+        {% for p in search_results %}
+          <li>
+            <a href="{% url 'marketplace:product_detail' p.id %}"><strong>{{ p.name }}</strong></a>
+            - {{ p.category.name }} - {{ p.producer.producer_name }} - GBP {{ p.price }}
+            {% if p.organic_certified %}<strong> [Certified Organic]</strong>{% endif %}
+            <br>
+            {% if p.allergen_info %}
+              ⚠️ Contains: {{ p.allergen_info }}
+            {% else %}
+              No known common allergens
+            {% endif %}
+            {% if p.description %}
+              <br>{{ p.description }}
+            {% endif %}
+          </li>
+        {% empty %}
+          <li>No matching products found.</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="recommend-heading">
+    <h2 id="recommend-heading">Explainable AI recommendations</h2>
+    <p><strong>Active model:</strong> {{ active_ai_model_label }}</p>
+    <ul>
+      {% for item in recommendations %}
+        <li>
+          <a href="{% url 'marketplace:product_detail' item.product.id %}"><strong>{{ item.product.name }}</strong></a>
+          - {{ item.product.producer.producer_name }} - GBP {{ item.product.price }}
+          <br>
+          <em>Why this was recommended:</em> {{ item.explanation }}
+        </li>
+      {% empty %}
+        <li>No recommendations available yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="categories-heading">
+    <h2 id="categories-heading">Browse categories</h2>
+    <ul>
+      {% for c in categories %}
+        <li><a href="{% url 'marketplace:category_products' c.slug %}">{{ c.name }}</a></li>
+      {% empty %}
+        <li>No categories yet. Add some in /admin/</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="account-heading">
+    <h2 id="account-heading">Account</h2>
+    {% if user.is_authenticated %}
+      <p>You are logged in as <strong>{{ user.username }}</strong>.</p>
+      <p><a href="{% url 'marketplace:producer_products' %}">Manage producer products</a></p>
+      <form action="/accounts/logout/" method="post">
+        {% csrf_token %}
+        <button type="submit">Log out</button>
+      </form>
+    {% else %}
+      <p>Sign in to manage your account or create a new customer profile.</p>
+      <p>
+        <a href="/accounts/login/">Log in</a> |
+        <a href="/register/customer/">Register as customer</a> |
+        <a href="{% url 'marketplace:register_producer' %}">Register as producer</a>
+      </p>
+    {% endif %}
+  </section>
+</main>

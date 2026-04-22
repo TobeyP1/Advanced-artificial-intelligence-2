@@ -1,0 +1,4 @@
+name,price,category_name,category_slug,producer_username,producer_name,contact_name,phone,address,postcode,description,allergen_info,stock_quantity,availability_status
+Cox Apples,2.80,Fruit,fruit,orchard_one,Orchard One,Amelia Stone,01234 444444,14 Orchard Lane,OR1 2AA,Classic British dessert apples,,60,AVAILABLE
+Chestnut Mushrooms,1.95,Vegetables,vegetables,woodland_farm,Woodland Farm,Noah Reed,01234 555555,8 Moss Road,WD3 5BB,Earthy mushrooms for cooking,,45,IN_SEASON
+Goat Cheese Log,4.50,Dairy,dairy,high_ridge,High Ridge Dairy,Lila Khan,01234 666666,3 Ridge View,HR4 6CC,Creamy soft cheese,Contains milk,25,AVAILABLE

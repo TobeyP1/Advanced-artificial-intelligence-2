@@ -1,0 +1,84 @@
+<main>
+  <p>
+    <a href="{% url 'marketplace:home' %}">Back to marketplace</a> |
+    <a href="{% url 'marketplace:ai_model_dashboard' %}">AI model centre</a>
+  </p>
+
+  <h1>Main administrator overview</h1>
+  <p><strong>Active model:</strong> {{ active_ai_model_label }}</p>
+
+  <section aria-labelledby="stats-heading">
+    <h2 id="stats-heading">Platform activity summary</h2>
+    <ul>
+      <li>Total users: {{ stats.total_users }}</li>
+      <li>Customer profiles: {{ stats.customer_profiles }}</li>
+      <li>Producer profiles: {{ stats.producer_profiles }}</li>
+      <li>Total products: {{ stats.total_products }}</li>
+      <li>Available products: {{ stats.available_products }}</li>
+      <li>Low-stock products: {{ stats.low_stock_products }}</li>
+      <li>Activity in last 7 days: {{ stats.activity_last_7_days }}</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="breakdown-heading">
+    <h2 id="breakdown-heading">Activity breakdown</h2>
+    <ul>
+      {% for row in activity_breakdown %}
+        <li>{{ row.action }}: {{ row.total }}</li>
+      {% empty %}
+        <li>No activity recorded yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="searches-heading">
+    <h2 id="searches-heading">Top searches</h2>
+    <ul>
+      {% for item in top_searches %}
+        <li>{{ item.search_query }} — {{ item.total }} searches</li>
+      {% empty %}
+        <li>No search analytics available yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="models-heading">
+    <h2 id="models-heading">Recent model uploads</h2>
+    <ul>
+      {% for model in models %}
+        <li>{{ model.name }} v{{ model.version }} — {{ model.get_status_display }}</li>
+      {% empty %}
+        <li>No models uploaded yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="xai-heading">
+    <h2 id="xai-heading">Explainable AI preview</h2>
+    <ul>
+      {% for item in recommendations %}
+        <li>
+          {{ item.product.name }} — <em>{{ item.explanation }}</em>
+        </li>
+      {% empty %}
+        <li>No recommendations available yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="recent-heading">
+    <h2 id="recent-heading">Recent activity log</h2>
+    <ul>
+      {% for entry in recent_activity %}
+        <li>
+          {{ entry.created_at }} — {{ entry.action }} —
+          {% if entry.user %}{{ entry.user.username }}{% else %}anonymous{% endif %}
+          {% if entry.product %} — {{ entry.product.name }}{% endif %}
+          {% if entry.search_query %} — {{ entry.search_query }}{% endif %}
+        </li>
+      {% empty %}
+        <li>No recent activity yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</main>

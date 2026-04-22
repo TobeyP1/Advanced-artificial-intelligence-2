@@ -1,0 +1,48 @@
+<main>
+  <header>
+    <h1>{{ producer.producer_name }} Product Management</h1>
+    <p><a href="{% url 'marketplace:producer_product_create' %}">Add New Product</a></p>
+  </header>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if products %}
+    <table>
+      <caption>Your listed products</caption>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Category</th>
+          <th scope="col">Price</th>
+          <th scope="col">Stock</th>
+          <th scope="col">Availability</th>
+          <th scope="col">Organic</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+          <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category.name }}</td>
+            <td>£{{ product.price }}</td>
+            <td>{{ product.stock_quantity }}</td>
+            <td>{{ product.get_availability_status_display }}</td>
+            <td>{% if product.organic_certified %}Certified{% else %}Not Certified{% endif %}</td>
+            <td><a href="{% url 'marketplace:producer_product_update' product.id %}">Edit</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No products listed yet.</p>
+  {% endif %}
+
+  <p><a href="{% url 'marketplace:home' %}">Back to home</a></p>
+</main>

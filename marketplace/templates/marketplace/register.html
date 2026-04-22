@@ -1,0 +1,90 @@
+<main>
+  <header>
+    <h1>Customer Registration</h1>
+    <p>Create your account to place orders and manage deliveries.</p>
+  </header>
+
+  {% if messages %}
+    <section aria-label="Messages">
+      <h2>Updates</h2>
+      <ul>
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if form.non_field_errors %}
+    <section aria-label="Form errors">
+      <h2>Please fix the following</h2>
+      <ul>
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <fieldset>
+      <legend>Your details</legend>
+
+      <p>
+        <label for="{{ form.full_name.id_for_label }}">{{ form.full_name.label }}</label><br>
+        {{ form.full_name }}
+        {{ form.full_name.errors }}
+      </p>
+
+      <p>
+        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label><br>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </p>
+
+      <p>
+        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label><br>
+        {{ form.phone }}
+        {{ form.phone.errors }}
+      </p>
+
+      <p>
+        <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label><br>
+        {{ form.delivery_address }}
+        {{ form.delivery_address.errors }}
+      </p>
+
+      <p>
+        <label for="{{ form.postcode.id_for_label }}">{{ form.postcode.label }}</label><br>
+        {{ form.postcode }}
+        {{ form.postcode.errors }}
+      </p>
+
+      <p>
+        <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label><br>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+      </p>
+
+      <p>
+        <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label><br>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+      </p>
+
+      <p>
+        {{ form.accept_terms }}
+        <label for="{{ form.accept_terms.id_for_label }}">{{ form.accept_terms.label }}</label>
+        {{ form.accept_terms.errors }}
+      </p>
+    </fieldset>
+
+    <p>
+      <button type="submit">Create account</button>
+    </p>
+  </form>
+
+  <p>Already registered? <a href="{% url 'login' %}">Log in</a>.</p>
+</main>
