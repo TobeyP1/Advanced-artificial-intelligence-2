@@ -1,0 +1,54 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fruit/Vegetable Freshness AI</title>
+    <link rel="stylesheet" href="{% static 'marketplace_freshness/css/style.css' %}" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="card hero">
+        <h1>Fruit/Vegetable Freshness AI</h1>
+        <p>Upload produce images to get freshness prediction, confidence, grade, action, and explanation.</p>
+      </section>
+
+      <section class="card">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="upload-form">
+          {% csrf_token %}
+          <label for="id_image">Image file</label>
+          {{ form.image }}
+
+          <label for="id_product_type">Product type (optional)</label>
+          {{ form.product_type }}
+
+          <button type="submit">Run Freshness Check</button>
+        </form>
+      </section>
+
+      {% if result %}
+      <section class="card result">
+        <h2>Prediction Result</h2>
+        <div class="result-grid">
+          <div><span>Fresh/Rotten</span><strong>{{ result.freshness }}</strong></div>
+          <div><span>Confidence</span><strong>{{ result.confidence_percent|floatformat:2 }}%</strong></div>
+          <div><span>Grade</span><strong>{{ result.grade }}</strong></div>
+          <div><span>Suggested Action</span><strong>{{ result.suggested_action }}</strong></div>
+          <div><span>Product Type</span><strong>{{ result.product_type }}</strong></div>
+        </div>
+        <p class="explanation">
+          <span>Explanation</span>
+          {{ result.explanation }}
+        </p>
+      </section>
+      {% endif %}
+    </main>
+  </body>
+</html>

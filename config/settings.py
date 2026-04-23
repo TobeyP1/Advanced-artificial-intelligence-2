@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'marketplace',
+    'marketplace_freshness',
 ]
 
 MIDDLEWARE = [
@@ -99,3 +100,7 @@ REST_FRAMEWORK = {
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Freshness feature settings (add-only and safe defaults).
+FRESHNESS_MAX_UPLOAD_MB = 5
+FRESHNESS_MODEL_DIR = os.getenv("FRESHNESS_MODEL_DIR", "")
