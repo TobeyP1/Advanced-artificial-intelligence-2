@@ -3,6 +3,7 @@
 
   <p>
     <a href="{% url 'marketplace:cart_detail' %}">View cart ({{ cart_total_items }})</a>
+    {% if user.is_authenticated %}| <a href="{% url 'marketplace:customer_orders' %}">My orders</a>{% endif %}
     {% if user.is_staff %}| <a href="{% url 'marketplace:ai_model_dashboard' %}">AI model centre</a>{% endif %}
     {% if user.is_superuser %}| <a href="{% url 'marketplace:admin_dashboard' %}">Platform overview</a>{% endif %}
   </p>
@@ -41,7 +42,7 @@
             {% if p.organic_certified %}<strong> [Certified Organic]</strong>{% endif %}
             <br>
             {% if p.allergen_info %}
-              ⚠️ Contains: {{ p.allergen_info }}
+              Contains: {{ p.allergen_info }}
             {% else %}
               No known common allergens
             {% endif %}
@@ -73,6 +74,32 @@
     </ul>
   </section>
 
+  <section aria-labelledby="quick-order-heading">
+    <h2 id="quick-order-heading">Intelligent Quick Re-Order</h2>
+    {% if user.is_authenticated %}
+      <p>Based on your purchase history, here are products you order frequently.</p>
+      <ul>
+        {% for product in quick_reorder_products %}
+          <li>
+            <a href="{% url 'marketplace:product_detail' product.id %}"><strong>{{ product.name }}</strong></a>
+            - {{ product.producer.producer_name }} - GBP {{ product.price }}
+            <form method="post" action="{% url 'marketplace:add_to_cart' product.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{% url 'marketplace:home' %}" />
+              <label for="quick-qty-{{ product.id }}">Qty</label>
+              <input id="quick-qty-{{ product.id }}" type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" />
+              <button type="submit">Quick add</button>
+            </form>
+          </li>
+        {% empty %}
+          <li>No purchase history yet. Place your first order to unlock intelligent re-order suggestions.</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Log in to see intelligent quick re-order suggestions based on your order history.</p>
+    {% endif %}
+  </section>
+
   <section aria-labelledby="categories-heading">
     <h2 id="categories-heading">Browse categories</h2>
     <ul>
@@ -88,6 +115,7 @@
     <h2 id="account-heading">Account</h2>
     {% if user.is_authenticated %}
       <p>You are logged in as <strong>{{ user.username }}</strong>.</p>
+      <p><a href="{% url 'marketplace:customer_orders' %}">View your orders and reorder quickly</a></p>
       <p><a href="{% url 'marketplace:producer_products' %}">Manage producer products</a></p>
       <form action="/accounts/logout/" method="post">
         {% csrf_token %}
