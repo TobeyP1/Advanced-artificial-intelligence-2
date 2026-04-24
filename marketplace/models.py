@@ -151,6 +151,8 @@ class UserActivityLog(models.Model):
     CART_UPDATE = "CART_UPDATE"
     CART_REMOVE = "CART_REMOVE"
     MODEL_UPLOAD = "MODEL_UPLOAD"
+    ORDER_SUBMIT = "ORDER_SUBMIT"
+    QUICK_REORDER = "QUICK_REORDER"
 
     ACTION_CHOICES = [
         (SEARCH, "Search"),
@@ -159,6 +161,8 @@ class UserActivityLog(models.Model):
         (CART_UPDATE, "Cart Update"),
         (CART_REMOVE, "Cart Remove"),
         (MODEL_UPLOAD, "Model Upload"),
+        (ORDER_SUBMIT, "Order Submit"),
+        (QUICK_REORDER, "Quick Reorder"),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
