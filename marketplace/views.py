@@ -1,10 +1,12 @@
 import csv
 from datetime import timedelta
+from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Count, Q
+from django.db import transaction
+from django.db.models import Count, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -20,8 +22,9 @@ from .forms import (
     ProducerProductForm,
     ProducerRegistrationForm,
 )
-from .models import AIModel, Category, CustomerProfile, Product, ProducerProfile, UserActivityLog
+from .models import AIModel, Category, CustomerProfile, Order, OrderItem, Product, ProducerProfile, UserActivityLog
 from .serializers import ProducerRegistrationSerializer, ProductSerializer
+
 
 User = get_user_model()
 
@@ -60,6 +63,36 @@ def _remember_product_view(request, product_id):
     recent_ids = [pid for pid in recent_ids if pid != product_id]
     recent_ids.insert(0, product_id)
     request.session["recently_viewed_products"] = recent_ids[:10]
+
+def _get_frequently_ordered_products(user, limit=6):
+    if not user.is_authenticated:
+        return []
+
+    ranked_product_ids = (
+        OrderItem.objects.filter(order__customer=user)
+        .values("product")
+        .annotate(total_ordered=Sum("quantity"), order_count=Count("id"))
+        .order_by("-total_ordered", "-order_count")
+    )
+    product_ids = [row["product"] for row in ranked_product_ids]
+
+    if not product_ids:
+        return []
+
+    available_products = Product.objects.select_related("producer", "category").filter(
+        id__in=product_ids,
+        availability_status__in=[Product.AVAILABLE, Product.IN_SEASON],
+        stock_quantity__gt=0,
+    )
+    available_map = {product.id: product for product in available_products}
+
+    ordered_products = []
+    for product_id in product_ids:
+        product = available_map.get(product_id)
+        if product:
+            ordered_products.append(product)
+
+    return ordered_products[:limit]
 
 
 def _get_explainable_recommendations(request, current_product=None, limit=4):
@@ -163,6 +196,8 @@ def home(request):
         )
 
     active_model, active_model_label = _get_active_model_info()
+    quick_reorder_products = _get_frequently_ordered_products(request.user, limit=6)
+
 
     context = {
         "categories": categories,
@@ -175,6 +210,8 @@ def home(request):
         "recommendations": _get_explainable_recommendations(request, limit=4),
         "active_ai_model": active_model,
         "active_ai_model_label": active_model_label,
+        "quick_reorder_products": quick_reorder_products,
+
     }
     return render(request, "marketplace/home.html", context)
 
@@ -348,6 +385,126 @@ def cart_detail(request):
         {"cart": cart, "cart_total_items": cart.get_total_items()},
     )
 
+@login_required
+def customer_orders(request):
+    orders = (
+        Order.objects.filter(customer=request.user)
+        .prefetch_related("items__product")
+        .order_by("-created_at")
+    )
+    return render(request, "marketplace/customer_orders.html", {"orders": orders})
+
+
+@login_required
+@require_POST
+def submit_cart(request):
+    cart = Cart(request)
+    cart_items = list(cart)
+
+    if not cart_items:
+        messages.error(request, "Your cart is empty.")
+        return redirect("marketplace:cart_detail")
+
+    unavailable = []
+    insufficient_stock = []
+
+    for item in cart_items:
+        product = item["product"]
+        quantity = item["quantity"]
+
+        if product.availability_status not in [Product.AVAILABLE, Product.IN_SEASON] or product.stock_quantity <= 0:
+            unavailable.append(product.name)
+            continue
+
+        if quantity > product.stock_quantity:
+            insufficient_stock.append(f"{product.name} (available: {product.stock_quantity})")
+
+    if unavailable or insufficient_stock:
+        if unavailable:
+            messages.error(request, f"These products are no longer available: {', '.join(unavailable)}")
+        if insufficient_stock:
+            messages.error(request, f"Insufficient stock for: {', '.join(insufficient_stock)}")
+        messages.info(request, "Please update your cart and try again.")
+        return redirect("marketplace:cart_detail")
+
+    with transaction.atomic():
+        order = Order.objects.create(customer=request.user, total_amount=Decimal("0.00"))
+        total_amount = Decimal("0.00")
+
+        for item in cart_items:
+            product = item["product"]
+            quantity = item["quantity"]
+
+            OrderItem.objects.create(order=order, product=product, quantity=quantity, unit_price=product.price)
+            total_amount += product.price * quantity
+
+            product.stock_quantity -= quantity
+            if product.stock_quantity <= 0:
+                product.stock_quantity = 0
+                product.availability_status = Product.UNAVAILABLE
+                product.save(update_fields=["stock_quantity", "availability_status"])
+            else:
+                product.save(update_fields=["stock_quantity"])
+
+        order.total_amount = total_amount
+        order.save(update_fields=["total_amount"])
+
+    cart.clear()
+    _log_activity(
+        request,
+        UserActivityLog.ORDER_SUBMIT,
+        details={"order_id": order.id, "item_count": len(cart_items), "total_amount": str(order.total_amount)},
+    )
+    messages.success(request, f"Order #{order.id} placed successfully.")
+    return redirect("marketplace:customer_orders")
+
+
+@login_required
+@require_POST
+def reorder_from_order(request, order_id):
+    order = get_object_or_404(
+        Order.objects.prefetch_related("items__product"),
+        id=order_id,
+        customer=request.user,
+    )
+    cart = Cart(request)
+
+    added_items = 0
+    unavailable_products = []
+    limited_stock_products = []
+
+    for item in order.items.all():
+        product = item.product
+        if product.availability_status not in [Product.AVAILABLE, Product.IN_SEASON] or product.stock_quantity <= 0:
+            unavailable_products.append(product.name)
+            continue
+
+        quantity_to_add = min(item.quantity, product.stock_quantity)
+        if quantity_to_add < item.quantity:
+            limited_stock_products.append(product.name)
+
+        cart.add(product=product, quantity=quantity_to_add)
+        added_items += 1
+
+    _log_activity(
+        request,
+        UserActivityLog.QUICK_REORDER,
+        details={
+            "order_id": order.id,
+            "added_items": added_items,
+            "unavailable_count": len(unavailable_products),
+            "limited_count": len(limited_stock_products),
+        },
+    )
+
+    if added_items:
+        messages.success(request, f"Added {added_items} item(s) from Order #{order.id} to your cart.")
+    if unavailable_products:
+        messages.warning(request, f"Skipped unavailable products: {', '.join(unavailable_products)}")
+    if limited_stock_products:
+        messages.warning(request, f"Some products were added with reduced quantity due to stock: {', '.join(limited_stock_products)}")
+
+    return redirect("marketplace:cart_detail")
 
 @require_POST
 def add_to_cart(request, product_id):
