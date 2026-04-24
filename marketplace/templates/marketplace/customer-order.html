@@ -1,0 +1,44 @@
+<main>
+  <nav aria-label="Breadcrumb">
+    <p><a href="{% url 'marketplace:home' %}">Back to home</a></p>
+    <p><a href="{% url 'marketplace:cart_detail' %}">View cart</a></p>
+  </nav>
+
+  <header>
+    <h1>Your Orders</h1>
+    <p>Quickly reorder items you buy often.</p>
+  </header>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if orders %}
+    <ul>
+      {% for order in orders %}
+        <li>
+          <strong>Order #{{ order.id }}</strong>
+          - {{ order.created_at }}
+          - Total £{{ order.total_amount }}
+          <ul>
+            {% for item in order.items.all %}
+              <li>
+                {{ item.product.name }} ({{ item.quantity }} × £{{ item.unit_price }}) = £{{ item.line_total }}
+              </li>
+            {% endfor %}
+          </ul>
+          <form method="post" action="{% url 'marketplace:reorder_from_order' order.id %}">
+            {% csrf_token %}
+            <button type="submit">Reorder these items</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have no orders yet. Add products to cart and place your first order.</p>
+  {% endif %}
+</main>
