@@ -56,7 +56,17 @@
     </table>
 
     <p><strong>Grand total:</strong> £{{ cart.get_total_price }}</p>
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'marketplace:submit_cart' %}">
+        {% csrf_token %}
+        <button type="submit">Place Order</button>
+      </form>
+      <p><a href="{% url 'marketplace:customer_orders' %}">View order history</a></p>
+    {% else %}
+      <p><a href="/accounts/login/">Log in to complete checkout</a></p>
+    {% endif %}
   {% else %}
     <p>Your cart is empty.</p>
   {% endif %}
 </main>
+
