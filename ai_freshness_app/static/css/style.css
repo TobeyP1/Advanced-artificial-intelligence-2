@@ -1,0 +1,149 @@
+:root {
+  --bg: #f4f7ec;
+  --panel: #ffffff;
+  --ink: #173325;
+  --muted: #5d6d63;
+  --accent: #2d7b4e;
+  --accent-strong: #195538;
+  --danger: #8d2a2a;
+  --danger-bg: #fcecec;
+  --ok-bg: #edf8f0;
+  --ring: rgba(45, 123, 78, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 10%, #daeccc 0%, transparent 40%),
+    radial-gradient(circle at 88% 82%, #d8f0e0 0%, transparent 36%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+.page-shell {
+  width: min(880px, 92vw);
+  margin: 2rem auto 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 10px 25px rgba(25, 85, 56, 0.1);
+}
+
+.hero h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.hero p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.alert {
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.alert.error {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.alert.success {
+  color: var(--accent-strong);
+  background: var(--ok-bg);
+}
+
+.upload-form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+label {
+  font-weight: 700;
+}
+
+input[type="file"],
+input[type="text"] {
+  width: 100%;
+  border: 1px solid #cfe1d6;
+  border-radius: 10px;
+  padding: 0.55rem 0.6rem;
+  background: #fdfefd;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+button {
+  margin-top: 0.35rem;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.72rem 0.9rem;
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.06);
+}
+
+.result h2 {
+  margin-top: 0;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.result-grid div {
+  border: 1px solid #dceae1;
+  border-radius: 10px;
+  padding: 0.62rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.result-grid span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.result-grid strong {
+  font-size: 1.05rem;
+}
+
+.explanation {
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: #f8fcf9;
+  border: 1px solid #ddeee4;
+}
+
+.explanation span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Fruit/Vegetable Freshness AI{% endblock %}
+
+{% block content %}
+<section class="card hero">
+  <h1>Fruit/Vegetable Freshness AI</h1>
+  <p>Upload produce images to get freshness prediction, confidence, grade, action, and explanation.</p>
+</section>
+
+<section class="card">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" enctype="multipart/form-data" class="upload-form">
+    <label for="image">Image file</label>
+    <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/bmp" required />
+
+    <label for="product_type">Product type (optional)</label>
+    <input id="product_type" name="product_type" type="text" placeholder="e.g. Apple, Tomato" maxlength="40" />
+
+    <button type="submit">Run Freshness Check</button>
+  </form>
+</section>
+
+{% if result %}
+<section class="card result">
+  <h2>Prediction Result</h2>
+  <div class="result-grid">
+    <div><span>Fresh/Rotten</span><strong>{{ result.freshness }}</strong></div>
+    <div><span>Confidence</span><strong>{{ '%.2f'|format(result.confidence * 100) }}%</strong></div>
+    <div><span>Grade</span><strong>{{ result.grade }}</strong></div>
+    <div><span>Suggested Action</span><strong>{{ result.suggested_action }}</strong></div>
+    <div><span>Product Type</span><strong>{{ result.product_type }}</strong></div>
+  </div>
+  <p class="explanation">
+    <span>Explanation</span>
+    {{ result.explanation }}
+  </p>
+</section>
+{% endif %}
+{% endblock %}

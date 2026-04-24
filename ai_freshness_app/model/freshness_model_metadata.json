@@ -1,0 +1,38 @@
+{
+  "model_name": "freshness_model.joblib",
+  "backend": "sklearn",
+  "best_model_type": "random_forest",
+  "class_names": [
+    "Rotten",
+    "Fresh"
+  ],
+  "image_size": [
+    32,
+    32
+  ],
+  "val_accuracy": 0.8366666666666667,
+  "samples": {
+    "train": 4800,
+    "validation": 1200
+  },
+  "model_comparison_accuracy": {
+    "random_forest": 0.8366666666666667,
+    "logistic_regression": 0.6433333333333333
+  },
+  "unique_product_types": [
+    "Apple",
+    "Banana",
+    "Bellpepper",
+    "Carrot",
+    "Cucumber",
+    "Grape",
+    "Guava",
+    "Jujube",
+    "Mango",
+    "Orange",
+    "Pomegranate",
+    "Potato",
+    "Strawberry",
+    "Tomato"
+  ]
+}
