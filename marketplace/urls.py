@@ -18,9 +18,12 @@ urlpatterns = [
     path("category/<slug:slug>/", views.category_products, name="category_products"),
     path("product/<int:pk>/", views.product_detail, name="product_detail"),
     path("cart/", views.cart_detail, name="cart_detail"),
+    path("cart/submit/", views.submit_cart, name="submit_cart"),  
     path("cart/add/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
     path("cart/update/<int:product_id>/", views.update_cart_item, name="update_cart_item"),
     path("cart/remove/<int:product_id>/", views.remove_from_cart, name="remove_from_cart"),
+    path("orders/", views.customer_orders, name="customer_orders"),  
+    path("orders/<int:order_id>/reorder/", views.reorder_from_order, name="reorder_from_order"),  
     path("api/producer/products/", views.ProducerProductListCreateView.as_view(), name="producer-products"),
     path("api/producer/products/<int:pk>/", views.ProducerProductDetailView.as_view(), name="producer-product-detail"),
 ]
