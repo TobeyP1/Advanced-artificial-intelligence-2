@@ -6,33 +6,28 @@
     "Rotten",
     "Fresh"
   ],
+  "fresh_probability_threshold": 0.45,
   "image_size": [
     32,
     32
   ],
-  "val_accuracy": 0.8366666666666667,
+  "val_accuracy": 0.9165386584741424,
   "samples": {
-    "train": 4800,
-    "validation": 1200
+    "train": 23432,
+    "validation": 5859,
+    "total_labeled": 29291,
+    "skipped_unlabeled": 0,
+    "class_counts": {
+      "Rotten": 15504,
+      "Fresh": 13787
+    }
   },
   "model_comparison_accuracy": {
-    "random_forest": 0.8366666666666667,
-    "logistic_regression": 0.6433333333333333
+    "random_forest": 0.9165386584741424,
+    "logistic_regression": 0.6999487967229903
   },
   "unique_product_types": [
-    "Apple",
-    "Banana",
-    "Bellpepper",
-    "Carrot",
-    "Cucumber",
-    "Grape",
-    "Guava",
-    "Jujube",
-    "Mango",
-    "Orange",
-    "Pomegranate",
-    "Potato",
-    "Strawberry",
-    "Tomato"
-  ]
+    "Fruit And Vegetable Diseases Dataset"
+  ],
+  "source_dataset_dir": "C:\\Users\\tomwa\\.cache\\kagglehub\\datasets\\muhammad0subhan\\fruit-and-vegetable-disease-healthy-vs-rotten\\versions\\1"
 }

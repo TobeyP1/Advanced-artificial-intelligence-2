@@ -5,4 +5,4 @@ djangorestframework
 joblib
 numpy
 Pillow
-scikit-learn
+scikit-learn==1.7.2

@@ -37,7 +37,16 @@
     <div><span>Grade</span><strong>{{ result.grade }}</strong></div>
     <div><span>Suggested Action</span><strong>{{ result.suggested_action }}</strong></div>
     <div><span>Product Type</span><strong>{{ result.product_type }}</strong></div>
+    <div><span>Defect Severity</span><strong>{{ result.defect_severity }}</strong></div>
+    <div><span>Defect Area</span><strong>{{ '%.2f'|format(result.defect_area_percent) }}%</strong></div>
+    <div><span>Detected Regions</span><strong>{{ result.defect_regions }}</strong></div>
   </div>
+  {% if result.defect_overlay_base64 %}
+  <div class="defect-visual">
+    <span>Defect Highlight</span>
+    <img src="data:image/png;base64,{{ result.defect_overlay_base64 }}" alt="Detected defect regions overlay" />
+  </div>
+  {% endif %}
   <p class="explanation">
     <span>Explanation</span>
     {{ result.explanation }}

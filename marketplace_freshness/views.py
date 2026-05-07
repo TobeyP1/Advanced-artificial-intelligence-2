@@ -37,9 +37,14 @@ def freshness_index(request):
                     "suggested_action": derive_suggested_action(
                         quality_status=prediction["quality_status"],
                         grade=prediction["grade"],
+                        defect_severity=prediction.get("defect_severity", "Low"),
                     ),
                     "explanation": prediction["explanation"],
                     "product_type": prediction.get("product_type") or "-",
+                    "defect_area_percent": prediction.get("defect_area_ratio", 0.0) * 100,
+                    "defect_severity": prediction.get("defect_severity", "Low"),
+                    "defect_regions": len(prediction.get("defect_boxes", [])),
+                    "defect_overlay_base64": prediction.get("defect_overlay_base64", ""),
                 }
             except QualityModelNotReady as exc:
                 messages.error(request, str(exc))

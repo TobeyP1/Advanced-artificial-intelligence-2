@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import dj_database_url
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-your-secret-key-change-in-production'
@@ -51,11 +53,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+DEFAULT_SQLITE_URL = f"sqlite:///{(BASE_DIR / 'db.sqlite3').as_posix()}"
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=DEFAULT_SQLITE_URL,
+        conn_max_age=600,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -103,4 +107,8 @@ LOGOUT_REDIRECT_URL = "/"
 
 # Freshness feature settings (add-only and safe defaults).
 FRESHNESS_MAX_UPLOAD_MB = 5
-FRESHNESS_MODEL_DIR = os.getenv("FRESHNESS_MODEL_DIR", "")
+FRESHNESS_MODEL_DIR = os.getenv(
+    "FRESHNESS_MODEL_DIR",
+    str(BASE_DIR / "ai_freshness_app" / "model"),
+)
+FRESHNESS_FRESH_THRESHOLD = float(os.getenv("FRESHNESS_FRESH_THRESHOLD", "0.45"))

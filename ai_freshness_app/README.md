@@ -42,3 +42,25 @@ This app is extracted from the DESD AI component and runs independently using Fl
 ## Troubleshooting
 - If model file is missing, place the two model files in `model/`.
 - If package install fails, use Python 3.10+ and retry dependency install.
+
+## Retrain With Kaggle Dataset
+Use this dataset for training:
+- https://www.kaggle.com/datasets/muhammad0subhan/fruit-and-vegetable-disease-healthy-vs-rotten
+
+After downloading and extracting it locally, run:
+
+```bash
+python train_model.py --dataset-dir "C:/path/to/fruit-and-vegetable-disease-healthy-vs-rotten"
+```
+
+Or download + train directly with KaggleHub:
+
+```bash
+python train_model.py --use-kagglehub
+```
+
+This writes:
+- `model/freshness_model.joblib`
+- `model/freshness_model_metadata.json`
+
+Then restart Django/Flask so the new model is used.

@@ -1,5 +1,6 @@
 Flask>=3.0,<4.0
 Pillow
-scikit-learn
+scikit-learn==1.7.2
 numpy
 joblib
+kagglehub
